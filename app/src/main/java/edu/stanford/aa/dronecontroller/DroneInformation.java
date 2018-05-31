@@ -45,13 +45,10 @@ public class DroneInformation {
     }
 
     private void setBattery() {
-        mProduct.getBattery().setStateCallback(new BatteryState.Callback() {
-            @Override
-            public void onUpdate(BatteryState batteryState) {
-                batteryCurrent = batteryState.getCurrent();
-                batteryVoltage = batteryState.getVoltage();
-                batteryPercentage = batteryState.getChargeRemainingInPercent();
-            }
+        mProduct.getBattery().setStateCallback(batteryState -> {
+            batteryCurrent = batteryState.getCurrent();
+            batteryVoltage = batteryState.getVoltage();
+            batteryPercentage = batteryState.getChargeRemainingInPercent();
         });
     }
 
@@ -69,6 +66,26 @@ public class DroneInformation {
         } else {
             Log.v(TAG, "Error: no Aircraft connected");
         }
+    }
+
+    public LocationCoordinate3D getLocation() {
+        return location;
+    }
+
+    public Attitude getAttitude() {
+        return attitude;
+    }
+
+    public double getVelocityX() {
+        return velocityX;
+    }
+
+    public double getVelocityY() {
+        return velocityY;
+    }
+
+    public double getVelocityZ() {
+        return velocityZ;
     }
 
     public JSONObject getJSONState() throws JSONException {

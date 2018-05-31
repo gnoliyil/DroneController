@@ -74,28 +74,22 @@ class ContentLayout extends ConstraintLayout {
         mEditIpAddress = findViewById(R.id.edit_ip);
         mBtnConnect = findViewById(R.id.btn_connect);
 
-        mBtnOpen.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.v(TAG, "Open button clicked");
-                switchToDroneControlActivity();
-            }
+        mBtnOpen.setOnClickListener(view -> {
+            Log.v(TAG, "Open button clicked");
+            switchToDroneControlActivity();
         });
 
-        mBtnConnect.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String url = mEditIpAddress.getText().toString();
-                try {
-                    IO.Options options = new IO.Options();
-                    options.reconnectionAttempts = 5;
-                    MApplication.setSocket(IO.socket(url, options));
-                    MsgEvents.setListener();
-                    MApplication.getSocket().connect();
-                } catch (URISyntaxException e) {
-                    ToastUtils.setResultToToast("Error setting up socket");
-                    Log.v(TAG, e.getMessage());
-                }
+        mBtnConnect.setOnClickListener(view -> {
+            String url = mEditIpAddress.getText().toString();
+            try {
+                IO.Options options = new IO.Options();
+                options.reconnectionAttempts = 5;
+                MApplication.setSocket(IO.socket(url, options));
+                MsgEvents.setListener();
+                MApplication.getSocket().connect();
+            } catch (URISyntaxException e) {
+                ToastUtils.setResultToToast("Error setting up socket");
+                Log.v(TAG, e.getMessage());
             }
         });
     }
@@ -125,12 +119,7 @@ class ContentLayout extends ConstraintLayout {
     public void onConnectivityChange(MainActivity.ConnectivityChangeEvent event) {
         Log.v(TAG, "on connectivity change");
         if (mHandlerUI != null) {
-            mHandlerUI.post(new Runnable() {
-                @Override
-                public void run() {
-                    refreshSDKRelativeUI();
-                }
-            });
+            mHandlerUI.post(() -> refreshSDKRelativeUI());
         }
     }
 
