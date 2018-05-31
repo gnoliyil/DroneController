@@ -34,6 +34,8 @@ public class DroneInformation {
     private double velocityX, velocityY, velocityZ;
     private double flightTimeInSeconds;
 
+    private JSONObject droneStateBuffer;
+
     public DroneInformation() {
         mProduct = MApplication.getProductInstance();
         MApplication.getEventBus().register(this);
@@ -42,6 +44,8 @@ public class DroneInformation {
         velocityX = velocityY = velocityZ = 0;
 
         setBattery();
+
+        droneStateBuffer = new JSONObject();
     }
 
     private void setBattery() {
@@ -125,6 +129,7 @@ public class DroneInformation {
                 new JSONObject().put("percentage", batteryPercentage)
                                 .put("current", batteryCurrent)
                                 .put("voltage", batteryVoltage));
+        droneStateBuffer = jsonObject;
         return jsonObject;
     }
 
@@ -134,4 +139,7 @@ public class DroneInformation {
         MApplication.getEventBus().unregister(this);
     }
 
+    public JSONObject getDroneStateBuffer() {
+        return droneStateBuffer;
+    }
 }

@@ -1,5 +1,6 @@
 package edu.stanford.aa.dronecontroller;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,11 +8,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import dji.common.error.DJIError;
 import dji.common.flightcontroller.ConnectionFailSafeBehavior;
+import dji.common.flightcontroller.virtualstick.FlightControlData;
 import dji.common.flightcontroller.virtualstick.FlightCoordinateSystem;
 import dji.common.flightcontroller.virtualstick.RollPitchControlMode;
 import dji.common.flightcontroller.virtualstick.VerticalControlMode;
@@ -31,12 +36,16 @@ public class DroneControlActivity extends AppCompatActivity {
     private Button mBtnLand;
     private Button mBtnConf;
     private Button mBtnFlyTo;
+    private Button mBtnSquare;
+    private Button mBtnTriangle;
 
     private TextView mTVDroneInfo;
 
     public DroneInformation droneInformation;
     public Timer droneStateTimer;
     public ArrayList<Timer> droneControlTimers;
+
+    private DrawShapeTasks drawShapeTasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +63,8 @@ public class DroneControlActivity extends AppCompatActivity {
         mBtnLand = findViewById(R.id.btn_land);
         mBtnConf = findViewById(R.id.btn_config);
         mBtnFlyTo = findViewById(R.id.btn_flyto);
+        mBtnSquare = findViewById(R.id.btn_square);
+        mBtnTriangle = findViewById(R.id.btn_triangle);
 
         EditText mEditLongitude = findViewById(R.id.edit_longitude);
         EditText mEditLatitude = findViewById(R.id.edit_latitude);
@@ -91,6 +102,19 @@ public class DroneControlActivity extends AppCompatActivity {
             controlTimer.schedule(newTask, 0L, 100L); // once every 100ms
             // IMPORTANT: The period must be less than 200 to control the drone.
         });
+
+        drawShapeTasks = new DrawShapeTasks();
+
+        TimerTask droneInformationDisplayTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    mTVDroneInfo.setText(droneInformation.getDroneStateBuffer().toString());
+                });
+            }
+        };
+        Timer droneInformationTimer = new Timer();
+        droneInformationTimer.schedule(droneInformationDisplayTask, 0, 1000L);
     }
 
     private void onClickHandler(View view) {
@@ -98,6 +122,8 @@ public class DroneControlActivity extends AppCompatActivity {
         if (flightController == null) {
             return;
         }
+
+        drawShapeTasks.setFlightController(flightController);
 
         switch (view.getId()) {
             case R.id.btn_takeoff:
@@ -119,6 +145,12 @@ public class DroneControlActivity extends AppCompatActivity {
                 // TODO: teams can enable MANUAL control mode here.
                 // flightController.setControlMode(ControlMode.MANUAL,
                 //         djiError -> ToastUtils.setResultToToast("Result: " + (djiError == null ? "Success" : djiError.getDescription()))););
+                break;
+            case R.id.btn_square:
+                drawShapeTasks.drawSquare();
+                break;
+            case R.id.btn_triangle:
+                drawShapeTasks.drawTriangle();
                 break;
         }
     }
